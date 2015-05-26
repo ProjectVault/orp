@@ -1,0 +1,16 @@
+SAPI=1
+[main]
+name = geophyte
+description = "OR1K system for the Geophyte development board"
+
+backend = ise
+
+[ise]
+ucf_files = data/geophyte.ucf
+family = artix7
+device = xc7a100t
+package = ftg256
+speed = -1
+top_module = orpsoc_top
+tcl_files = data/options.tcl
+

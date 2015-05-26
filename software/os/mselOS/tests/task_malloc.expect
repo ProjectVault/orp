@@ -1,0 +1,26 @@
+set timeout 5
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "TASK1 TEST STARTING"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "TASK1 TEST COMPLETE"
+}
+
+expect {
+	       -re "MALLOC FAIL" { puts "got error!"; exit -1 }
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "TASK2 OK"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "TASK3 OK"
+}
+

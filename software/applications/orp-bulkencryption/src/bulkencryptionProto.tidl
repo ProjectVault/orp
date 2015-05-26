@@ -1,0 +1,81 @@
+/* bulkencryptionProto.tidl
+ *
+ * tidlgen --C bulkencryptionProto --infile bulkencryptionProto.tidl
+ * tidlgen --outdir ../../../Libraries/libmicroSEL-Android/libmicroSEL/src/main/java --java orp.demo.bulkencryption --infile bulkencryptionProto.tidl
+ */
+
+
+enum BulkEncryptionCommand {
+  BEC_LOGOUT          = 0x10,
+  BEC_GEN_DHPAIR      = 0x20,
+  BEC_DH_EXCHANGE     = 0x30,
+  BEC_GCM_INIT        = 0x50,
+  BEC_GCM_DOBLOCK     = 0x60,
+}
+
+enum BulkEncryptionResponse {
+  BER_ERROR           = 0xff,
+  BER_GOODBYE         = 0x11,
+  BER_DHPAIR          = 0x21,
+  BER_DH_EXCHANGED    = 0x31,
+  BER_GCM_READY       = 0x51,
+  BER_GCM_BLOCKS      = 0x61,
+}
+
+
+
+/* BEC_GEN_DHPAIR */
+struct GenDHPair_Cmd {
+  array[32] uint8     seed;
+}
+
+/* BER_DHPAIR */
+struct GenDHPair_Res {
+  array[128] uint8    pubkey;
+  uint8               privkey_idx;
+}
+
+
+
+/* BEC_DH_EXCHANGE */
+struct DHExchange_Cmd {
+  array[128] uint8    remote_pubkey;
+  uint8               local_privkey_idx;
+}
+
+/* BER_DH_EXCHANGED */
+struct DHExchange_Res {
+  uint8               shared_idx;
+}
+
+
+
+enum GCM_Mode {
+  GCM128_ENCRYPT      = 0x10,
+  GCM128_DECRYPT      = 0x20,
+}
+
+/* BEC_GCM_INIT */
+struct GcmInit_Cmd {
+  enum GCM_Mode       mode;
+  uint8               shared_idx;
+}
+
+/* BER_GCM_READY */
+struct GcmInit_Res {
+  uint8               gcm_idx;
+}
+
+
+
+/* BEC_GCM_DOBLOCK */
+struct GcmDoBlock_Cmd {
+  array[16] uint8     block;
+  uint8               gcm_idx;
+}
+
+/* BER_GCM_BLOCKS */
+struct GcmDoBlock_Res {
+  array[16] uint8     block;
+}
+

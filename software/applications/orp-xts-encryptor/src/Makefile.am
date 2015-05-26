@@ -1,0 +1,35 @@
+
+# Default flags
+noinst_LTLIBRARIES =
+
+BASE_FLAGS = --std=gnu99 -Wall -L$(ORP)/lib
+BASE_INCLUDES = -I$(top_srcdir)/include -I$(ORP)/include
+AM_LDFLAGS =
+
+# Arch specific flags
+if OPENRISC
+BASE_FLAGS += -D__GCC_OpenRISC__ -fno-strict-aliasing -fno-builtin -nostartfiles
+AM_LDFLAGS += -T$(ORP)/share/mselOS/link.ld -Wl,"-e 0x00100100"
+endif
+if ARM
+BASE_FLAGS += -mcpu=cortex-m3 -mthumb 
+endif
+
+# Debugging enabled?
+if DEBUG
+BASE_FLAGS += -DDEBUG -ggdb
+else
+BASE_FLAGS += -DRELEASE
+endif
+
+
+
+lib_LTLIBRARIES = libxtsencryptor.la
+libxtsencryptor_la_CFLAGS = $(BASE_FLAGS) $(BASE_INCLUDES)
+libxtsencryptor_la_SOURCES = xts-encryptor.c xtsProto.c
+libxtsencryptor_la_LIBADD = -lmselos
+
+bin_PROGRAMS = bundle-xts-encryptor
+bundle_xts_encryptor_CFLAGS = $(BASE_FLAGS) $(BASE_INCLUDES)
+bundle_xts_encryptor_SOURCES = main.c
+bundle_xts_encryptor_LDADD = -lmselos libxtsencryptor.la

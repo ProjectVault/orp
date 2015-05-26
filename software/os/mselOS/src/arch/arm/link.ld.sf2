@@ -1,0 +1,101 @@
+OUTPUT_FORMAT("elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_reset)
+		  
+/* TrODO: Needs to be 64k for release but -O0 binaries won't fit */
+ROM_START = 0x00000000;
+ROM_SIZE = 64k;
+
+RAM_START = 0x20000000;
+RAM_SIZE = 64k;
+
+/* Reserve static blocks of memory for tasks */
+NUM_TASKS       = 3; /* +1 for main task */
+TASK_SIZE       = 8192;
+TASK_STACK_SIZE = 2*1024;
+TASK_HEAP_SIZE  = TASK_SIZE - TASK_STACK_SIZE;
+
+
+MEMORY
+{
+	
+	rom       (rx): ORIGIN = 0x60000000, LENGTH = 512k
+	romMirror (rx): ORIGIN = 0x00000000, LENGTH = 512k 
+	ram       (rw): ORIGIN = 0x20000000, LENGTH = 64k
+}
+
+PROVIDE( exception_stack = RAM_START + RAM_SIZE);
+PROVIDE( rom_start = ROM_START );
+PROVIDE( rom_size  = ROM_SIZE );
+PROVIDE( ram_start = RAM_START );
+PROVIDE( ram_size  = RAM_SIZE );
+
+
+SECTIONS
+{
+	. = ROM_START;
+
+	/* Vectors start at 0 (TODO: these will be remapped to remove need for addressable memory at the null address) */
+
+	.vectors ALIGN(4) :
+	{
+		_vec_start = .;
+		*(.vectors)
+		_vec_end = .;
+	} >romMirror AT>rom
+
+	.text ALIGN(4) :
+	{
+		PROVIDE(text_start = .);	
+		*(.text)
+		*(.rodata)
+		*(.rodata.*)
+	} >romMirror AT>rom
+
+	/* Jump to RAM address now */
+	. = RAM_START;
+
+
+	/* Task mem get linked in *before* .data and .bss so that
+	those addresses underflow into invalid address space */
+
+	PROVIDE( tasks_start      = . );
+	PROVIDE( tasks_size       = TASK_SIZE );
+	PROVIDE( tasks_stack_size = TASK_STACK_SIZE );
+ 	PROVIDE( tasks_heap_size  = TASK_HEAP_SIZE );
+
+	.tasks ALIGN(4) :
+	{
+		PROVIDE( stack_bottom = .); /* sbrk will hate this, shouldn't be using that anyway... */
+		/* Alloc for main task */
+		. += TASK_STACK_SIZE;
+		PROVIDE( stack_top = .);
+		. += TASK_HEAP_SIZE;
+
+		/* Alloc space for use tasks */
+		. += TASK_SIZE * NUM_TASKS;
+	} >ram
+
+
+	.data ALIGN(4) : 
+	{
+		_data_loadaddr = LOADADDR (.data);
+		_data_beg = .;
+		*(.data)
+		*(.data.rel)
+        *(.data.rel.local)
+		_data_end = .;
+	} > ram 
+
+	.bss ALIGN(4) : 
+	{
+		__bss_start = .;
+		_bss_beg = .;
+		*(.bss)
+        . = ALIGN(4);
+		_bss_end = .;
+	} >ram 
+
+	/* This will be the initial stack pointer after reset */
+	PROVIDE( end = ALIGN(RAM_SIZE) );
+}

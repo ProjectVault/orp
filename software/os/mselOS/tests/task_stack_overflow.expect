@@ -1,0 +1,14 @@
+# If it prints "CHECK" 5 times I'm pretty confident the yield call is working properly
+
+set timeout 10
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "STARTING STACK OVERFLOW TEST"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "Killed task 1. REASON: Stack error"
+}
+

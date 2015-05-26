@@ -1,0 +1,37 @@
+# Doxyfile 1.8.5
+
+# This file describes the settings to be used by the documentation system
+# doxygen (www.doxygen.org) for a project.
+#
+# All text after a double hash (##) is considered a comment and is placed in
+# front of the TAG it is preceding.
+#
+# All text after a single hash (#) is considered a comment and will be ignored.
+# The format is:
+# TAG = value [value, ...]
+# For lists, items can also be appended using:
+# TAG += value [value, ...]
+# Values that contain spaces should be placed between quotes (\" \").
+
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "Open Reference Model"
+OUTPUT_LANGUAGE        = English
+OPTIMIZE_OUTPUT_FOR_C  = YES
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          = *.c *.h *.dox *.java *.ld
+RECURSIVE              = YES
+EXCLUDE_SYMLINKS       = YES
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = YES
+STRIP_CODE_COMMENTS    = NO
+SOURCE_TOOLTIPS        = YES
+GENERATE_LATEX         = YES
+INPUT                  = ../software/os/mselOS/ ../software/android/orp-android/
+INPUT                 += ../hardware/mselSoC/mselSoC.dox ../software/tools/tidl/tidl.dox
+INPUT                 += ../third-party/qemu-orp/qemu.dox ../software/applications/demo.dox
+INPUT                 += ../mainpage.dox 
+IMAGE_PATH             = ./
+EXCLUDE_PATTERNS       = */tests/* */dchat/* */fulltest/* */urchat/* */androidTest/* */demo/*
+TYPEDEF_HIDES_STRUCT   = YES
+ENUM_VALUES_PER_LINE   = 1
+

@@ -1,0 +1,45 @@
+NAND CPU Controller Documentation
+
+The NAND CPU Controller supports OR1K compatible wishbone bus cycles for Page Erase, Page Program and Page Read operations. It is recommended to use Burst Cycles when possible to minimize the use of the bus and increase speed of large transfers. The controller implements the basic operations needed to make use of the NAND flash including Page Program, Page Read, Block Erase, and Read Status and ECC. To make use of the ECC, the controller does page-level buffering for each Page Program and Page Read operation by providing a shared BRAM buffer at WBCPU_FLASH_BASEADDR that is written and read from by the CPU. Additionally for extra functionality it provides:
+
+- A method for storing a 64-bit value in the spare space of each page
+- The ability to read the raw data stored in the spare space (for factory programmed bad block detection on initial boot up)
+
+
+Page Program
+
+All program operations must first write the page into the shared BRAM buffer at WBCPU_FLASH_BASEADDR. It is also recommended that you only program a page that is erased as the program operation only flips bits from 1 to 0. Whatever you set the spare_space_wr[64:0] register to be (by writing to WBCPU_SPARE_SPACE_WR_BASEADDR) will additionally have it's ECC calculated and will be written into the spare space of the page being programmed. When writing to the shared BRAM buffer the wishbone cycles will ack immediately (one clock cycle after the request). To initiate the Page Program operation, you must then write the flash address to the WBCPU_WRITE_BASEADDR (the bottom 11 page address bits are ignored). This will be acked immediately and begin the Page Program operation. You must then poll WBCPU_STATUS_BASEADDR to determine if the controller is READY = 1 before issuing another operation.
+
+
+Page Read
+
+To issue a Page Read to the NAND Controller, write the address of the page you wish to read from to WBCPU_READ_BASEADDR (the bottom 11 bits are ignored). This will initiate a Page Read operation and when complete, the ECC corrected page data will be stored in the shared BRAM buffer at WBCPU_FLASH_BASEADDR and WBCPU_SPARE_SPACE_RD_BASEADDR will contain the ECC corrected spare_space_rd[63:0] register read back from the page. This operation will be acked immediately and you must then poll the WBCPU_STATUS_BASEADDR to determine if the controller is READY = 1 before issuing another operation.
+
+NOTE: After a Page Read completes, the spare_space_rd[63:0] value at WBCPU_SPARE_SPACE_RD_BASEADDR will be updated with the ECC corrected spare_space_rd[63:0] value for the currently read page. This is implemented as a register separate from spare_space_wr[63:0]. Reading spare_space_rd[63:0] for an erased page will always return {64{1'b1}}.
+
+
+Block Erase
+
+To perform a Block Erase, just write the address of the block you want to erase (0-1023) to the WBCPU_ERASE_BASEADDR register. This will initiate an Erase operation on the NAND and be acked immediately. You must then poll the WBCPU_STATUS_BASEADDR to determine if the controller is READY = 1 before issuing any other operation. It is recommended to issue a STATUS command after performing an Erase or Program operation so you know if a block has become bad. 
+
+
+Page Offset
+
+The page_offset register at WBCPU_PAGE_OFFSET_BASEADDR exists so that you can read out the raw data stored in the spare space of a page. To make use of this, write a 1 into the page_offset register and then perform a Page Read to read out the raw data located in the spare space.
+
+NOTE: The data read out in the spare space will not have gone through any ECC. After reading out spare space data, you should write page_offset back to 0 to restore normal Page Read and Page Program operations.
+
+
+Spare Space
+
+The spare_space_wr[63:0] register at WBCPU_SPARE_SPACE_WR_BASEADDR is used for setting the values written to the spare space during a Page Program operation. The spare_space_rd[63:0] register at WBCPU_SPARE_SPACE_RD_BASEADDR reflects the ECC corrected value read from the last read page.
+
+
+Read Status
+
+The WBCPU_STATUS_BASEADDR contains 2 bits:
+
+bit 0 - READY:  1 = Operation complete, 0 = Bus Busy, any transactions initiated while busy will be ignored
+bit 1 - STATUS: 1 = The last STATUS command reported back an error, 0 = No errors
+
+To issue a Status command to the NAND controller to read back the NAND status after a Page Program or Erase operation, you must perform a write on the WBCPU_STATUS_BASEADDR address immediately after completing a Page Program or a Block Erase operation (after reading READY = 1 from WBCPU_STATUS_BASEADDR). After issuing the Status command if you read back STATUS = 1, it indicates that there has been an error and the block should be marked as bad. Reading back STATUS = 0 indicates that the operation completed successfully.

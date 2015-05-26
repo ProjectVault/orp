@@ -1,0 +1,41 @@
+/**
+
+@mainpage msel ORP Documentation
+
+@section introduction Introduction
+
+The msel ORP (Open Reference Platform) Android peripheral enables trusted computations to be
+performed on an untrusted host Android device.  The peripheral and the host communicate over the
+_faux filesystem interface_, a fake FAT filesystem that the peripheral presents over microSD
+communication bus.  This ensures that no additional drivers are required for the host device to
+interact with the peripheral, since the vast majority of devices with a microSD card slot can read a
+FAT filesystem.  The fake filesystem presented by the peripheral device contains two files, called
+RFILE and WFILE, which are used to communicate with the secure microprocessor on the peripheral.
+
+This model ensures that encryption keys and other secure data can never be accidentally leaked to
+the untrusted host device.  The worst failure mode that exists is denial-of-service: the untrusted
+host can prevent communication with the peripheral device, but it has no control over the peripheral
+otherwise.
+
+The ORP implementation of the peripheral is designed as a prototype platform that application
+developers and researchers can use, study, and modify at will.  This implementation includes the
+following components, described briefly below, and discussed in more detail in the linked pages:
+
+1. mselSoC: A modified OpenRISC 1200 secure System-on-a-Chip that includes several hardware
+cryptographic cores.  This processor is designed for the Digilent Artix-7 FPGA, a popular and easily
+obtainable FPGA that is often used in academic settings.  [More...](@ref mselSoC)
+2. mselOS: A real-time operating system custom-built for the ORP hardware which supports
+communication over the faux filesystem, interaction with the various cryptographic cores, and a
+simple task-switching mechanism and session manager.  [More...](@ref mselOS)
+3. ORP Android Library: A collection of libraries for the Android host which simplify development of
+applications that interface with the ORP peripheral.  [More...](@ref orpandroid)
+4. TIDL: A tiny serialization/deserialization library that application developers can use to ensure
+communication is correctly parsed on both sides of the faux filesystem interface.  
+[More...](@ref tidl)
+5. ORP-Qemu: Modifications to the Qemu open-source emulator to include support for the ORP hardware.
+Thus developers can design, build, and test applications without running on a real hardware device.
+[More...](@ref qemu)
+6. Demo applications: A number of demo applications for mselOS that illustrate its features and
+possible use cases.  [More...](@ref demo)
+
+*/

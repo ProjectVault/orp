@@ -1,0 +1,242 @@
+# Test the interactions between an "Android" device and the faux filesystem
+# This test requires the ffs_android binary in the same directory
+
+set timeout 10
+set max_sessions 5
+set queue_size 2
+
+# Wait before connecting the android client
+sleep 1
+
+spawn ./ffs_android
+
+expect { 
+    timeout { puts "bad RFILE"; exit -1; } 
+    "RFILE connected" 
+}
+
+expect { 
+    timeout { puts "bad WFILE"; exit -1; } 
+    "WFILE connected" 
+}
+
+# Can't write to a session that hasn't been started
+send "w 1\r"
+send "asdf\r"
+sleep 0.1
+send "s\r"
+expect { 
+    timeout { puts "no response"; exit -1; } 
+    "ERROR" 
+}
+send "r\r"
+expect { 
+    timeout { puts "no response"; exit -1; } 
+    "Message from session 0: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ..."
+}
+
+# Can't send an arbitrary message to session 0
+send "w 0\r"
+send "asdf\r"
+sleep 0.1
+send "s\r"
+expect {
+    timeout { puts "no response"; exit -1; }
+    "EINPUT"
+}
+send "r\r"
+expect { 
+    timeout { puts "no response"; exit -1; } 
+    "Message from session 0: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ..."
+}
+
+# Start a bunch of new sessions
+for {set i 1} {$i <= $max_sessions} {incr i} {
+    send "n\r"
+    send "abcd\r"; # endpoint for the echo session
+    sleep 0.1
+    send "s\r"
+    expect {
+        timeout {puts "no response"; exit -1; }
+        "OK"
+    }
+    send "r\r"
+    expect {
+        timeout {puts "noresponse"; exit -1; }
+        "Message from session 0: 0x0 0x$i 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ..."
+    }
+    send "a\r"
+    sleep 0.1
+}
+
+# Can't start more than the maximum number of sessions
+send "n\r"
+send "abcd\r"
+sleep 0.1
+send "s\r"
+expect {
+    timeout {puts "no response"; exit -1; }
+    "ERROR"
+}
+
+# Fill up the output queue with messages
+for {set i 0} {$i < 2 * $queue_size + 2} {incr i} {
+    send "w 1\r"
+    send "$i\r"
+    sleep 0.1
+    send "s\r"
+    expect {
+        timeout {puts "no response"; exit -1; }
+        "OK"
+    }
+}
+
+# Should get a RETRY message now
+send "w 1\r"
+send "$i\r"
+sleep 0.1
+send "s\r"
+expect {
+    timeout {puts "no response"; exit -1; }
+    "RETRY"
+}
+
+# Should still have space to write to a different session
+for {set i 0} {$i < $queue_size + 1} {incr i} {
+    send "w 2\r"
+    send "$i\r"
+    sleep 0.1
+    send "s\r"
+    expect {
+        timeout {puts "no response"; exit -1; }
+        "OK"
+    }
+}
+
+# Should get another retry message now
+send "w 2\r"
+send "$i\r"
+sleep 0.1
+send "s\r"
+expect {
+    timeout {puts "no response"; exit -1; }
+    "RETRY"
+}
+
+set s1 0
+set s2 0
+
+# Check that messages are read in the right order for each session
+for {set i 0} {$i < 3 * $queue_size + 3} {incr i} {
+    set s1bin [binary encode hex $s1]
+    set s2bin [binary encode hex $s2]
+    send "r\r"
+    sleep 0.1
+    expect {
+        timeout {puts "no response"; exit -1; }
+        "Message from session 1:" { expect {
+            timeout {puts "no response"; exit -1; }
+            "0x$s1bin 0xa 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ..." 
+            }
+            incr s1;
+        }
+        "Message from session 2:" { 
+            expect {
+                timeout { puts "no response"; exit -1; }
+                "0x$s2bin 0xa 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ..."
+            }
+            incr s2; 
+            # Make sure the status got changed from RETRY to READY
+
+            send "s\r"
+            sleep 0.1
+            expect { 
+                timeout {puts "no response"; exit -1; }
+                "READY" 
+            }
+        }
+    }
+    send "a\r"
+    sleep 0.1
+}
+
+# Queue should now be empty
+send "r\r"
+expect { 
+    timeout { puts "no response"; exit -1; } 
+    "Message from session 0: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ..."
+}
+
+# Kill a session
+send "k 3\r"
+sleep 0.1
+send "s\r"
+expect {
+    timeout {puts "no response"; exit -1; }
+    "OK"
+}
+
+# Can't write to killed session
+send "w 3\r"
+send "asdf\r"
+sleep 0.1
+send "s\r"
+expect { 
+    timeout { puts "no response"; exit -1; } 
+    "ERROR" 
+}
+send "r\r"
+expect { 
+    timeout { puts "no response"; exit -1; } 
+    "Message from session 0: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ..."
+}
+
+# Can still write to other sessions -- add two messages to check session 0 pre-emption
+for {set i 0} {$i < 2} {incr i} {
+    send "w 2\r"
+    send "asdf\r"
+    sleep 0.1
+    send "s\r"
+    expect {
+        timeout {puts "no response"; exit -1; }
+        "OK"
+    }
+}
+
+send "n\r"
+send "abcd\r"; # endpoint for the echo session
+sleep 0.1
+send "s\r"
+expect {
+    timeout {puts "no response"; exit -1; }
+    "OK"
+}
+send "r\r"
+expect {
+    timeout {puts "noresponse"; exit -1; }
+    "Message from session 2: 0x61 0x73 0x64 0x66 0xa 0x0 0x0 0x0 0x0 0x0 ..."
+}
+send "a\r"
+sleep 0.1
+
+# The response from session 0 should pre-empt the second message from session 2
+send "r\r"
+expect {
+    timeout {puts "noresponse"; exit -1; }
+    "Message from session 0: 0x0 0x3 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ..."
+}
+send "a\r"
+sleep 0.1
+
+send "r\r"
+expect {
+    timeout {puts "noresponse"; exit -1; }
+    "Message from session 2: 0x61 0x73 0x64 0x66 0xa 0x0 0x0 0x0 0x0 0x0 ..."
+}
+send "a\r"
+sleep 0.1
+    
+
+close
+
+

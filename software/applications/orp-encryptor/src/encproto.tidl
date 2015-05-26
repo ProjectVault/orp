@@ -1,0 +1,30 @@
+/* encproto.tidl
+ *
+ * $ tidlgen --C encProto --outdir ./ --infile encproto.tidl
+ * Wrote to file ./C/encProto.c
+ * Wrote to file ./C/include/encProto.h
+ * $
+ */
+
+enum EncryptorAlgo {
+  EC_GCM_128              = 0x00,
+  EC_GCM_192              = 0x01,
+  EC_GCM_256              = 0x02,
+}
+
+enum EncryptorMode {
+  EC_ENCRYPT              = 0x10,
+  EC_DECRYPT              = 0x20,
+  EC_SHUTDOWN             = 0x30,
+}
+
+enum EncryptorCommand {
+  EC_DATA                 = 0x40,
+  EC_DONE                 = 0x50,
+}
+
+enum EncryptorResponse {
+  ER_ERROR              = 0xff,
+  ER_UNSUPPORTED		= 0xfe,
+  ER_OK                 = 0x01,
+}

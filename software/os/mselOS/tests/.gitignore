@@ -1,0 +1,17 @@
+chat_test
+boot_test
+aes_test
+sha_test
+ecc_test
+ffs_session
+ffs_android
+yield_loop
+task_stack_overflow
+task_malloc
+uart_test
+throughput_test
+mtc_test
+common/build_vars
+*.trs
+*.log
+*.map

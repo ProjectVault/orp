@@ -1,0 +1,15 @@
+# If it prints "CHECK" 5 times I'm pretty confident the yield call is working properly
+
+set timeout 150
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+}
+
+expect {
+           timeout { puts "timed out"; exit -1 }
+           "ERROR" { puts "Invalid computation"; exit -1 }
+           "Done!"
+}
+

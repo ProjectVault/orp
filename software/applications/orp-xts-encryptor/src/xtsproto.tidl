@@ -1,0 +1,24 @@
+/* xtsproto.tidl
+ *
+ * $ tidlgen --C xtsProto --outdir ./ --infile xtsproto.tidl
+ * Wrote to file ./C/encProto.c
+ * Wrote to file ./C/include/encProto.h
+ * $
+ */
+
+enum XtsAlgo {
+  XTS_128              = 0x00,
+  XTS_256              = 0x02,
+}
+
+enum XtsCommand {
+  XTS_ENCRYPT              = 0x10,
+  XTS_DECRYPT              = 0x20,
+  XTS_SHUTDOWN             = 0x30,
+}
+
+enum XtsResponse {
+  XTS_ERROR              = 0xff,
+  XTS_UNSUPPORTED		 = 0xfe,
+  XTS_OK                 = 0x01,
+}

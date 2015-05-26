@@ -1,0 +1,11 @@
+set timeout 5
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "MTC MULTITHREAD OK"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "MTC MULTITHREAD OK"
+}

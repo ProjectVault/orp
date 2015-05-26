@@ -1,0 +1,34 @@
+# If it prints "CHECK" 5 times I'm pretty confident the yield call is working properly
+
+set timeout 10
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "HELLO"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "HELLO"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "HELLO"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "HELLO"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "HELLO"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+		   "DONE"
+}
+

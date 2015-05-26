@@ -1,0 +1,84 @@
+CAPI=1
+[main]
+depend =
+ or1200
+ mor1kx
+ uart16550
+ gpio
+ wb_ram
+ wb_bfm
+ wb_intercon
+ adv_debug_sys
+
+simulators =
+ icarus
+
+[verilog]
+src_files =
+ rtl/verilog/orpsoc_top.v
+ rtl/verilog/clkgen.v
+ rtl/verilog/wb_rom/rtl/verilog/wb_rom.v
+ rtl/verilog/wb_rom/rtl/verilog/dp_rom.v
+ rtl/verilog/bootrom.v
+ rtl/verilog/wb_intercon.v
+ rtl/verilog/trng/rtl/verilog/wb_trng.v
+ rtl/verilog/trng/rtl/verilog/trng.v
+ rtl/verilog/crypto_aes/rtl/verilog/crypto_aes_top.v
+ rtl/verilog/crypto_aes/rtl/verilog/aes_core.v
+ rtl/verilog/crypto_aes/rtl/verilog/aes_ks.v
+ rtl/verilog/crypto_aes/rtl/verilog/aes_sbox.v
+ rtl/verilog/crypto_aes/rtl/verilog/wb_aes_ctrl.v
+ rtl/verilog/crypto_sha256/rtl/verilog/crypto_sha256_top.v
+ rtl/verilog/crypto_sha256/rtl/verilog/sha256.v
+ rtl/verilog/crypto_sha256/rtl/verilog/sha256_K.v
+ rtl/verilog/crypto_sha256/rtl/verilog/sha256_W.v
+ rtl/verilog/crypto_sha256/rtl/verilog/wb_sha256_ctrl.v
+ rtl/verilog/fauxfs/rtl/verilog/fauxfs_top.v
+ rtl/verilog/sdhc/rtl/verilog/sd_top.v
+ rtl/verilog/sdhc/rtl/verilog/sd_brams.v
+ rtl/verilog/sdhc/rtl/verilog/common.v
+ rtl/verilog/sdhc/rtl/verilog/sd_phy.v
+ rtl/verilog/sdhc/rtl/verilog/sd_link.v
+ rtl/verilog/sdhc/rtl/verilog/sd_mgr.v
+ rtl/verilog/sdhc/rtl/verilog/sd_wishbone.v
+ rtl/verilog/sdhc/rtl/verilog/ftl_top.v
+ rtl/verilog/sdhc/rtl/verilog/ftl_wbs.v
+ rtl/verilog/sdhc/rtl/verilog/ftl_free_fifo.v
+ rtl/verilog/sdhc/rtl/verilog/ftl_brams.v
+ rtl/verilog/sdhc/rtl/verilog/ftl_logical.v
+ rtl/verilog/sdhc/rtl/verilog/ftl_buf.v
+ rtl/verilog/sdhc/rtl/verilog/ftl_physical.v
+ rtl/verilog/sdhc/rtl/verilog/nandc_ecc_dual_master.v
+ rtl/verilog/sdhc/rtl/verilog/nandc_ecc_inline_cpu.v
+ rtl/verilog/sdhc/rtl/verilog/nandc_hamm.v
+ rtl/verilog/sdhc/rtl/verilog/nandc_brams.v
+ rtl/verilog/sdhc/rtl/verilog/nandc_ecc_inline.v
+ rtl/verilog/sdhc/rtl/verilog/nandc.v
+
+include_files =
+ rtl/verilog/wb_intercon.vh
+ rtl/verilog/rom.dat
+ rtl/verilog/bootrom_data.vh
+ rtl/verilog/fauxfs/rtl/verilog/mbr_rom.vh
+ rtl/verilog/fauxfs/rtl/verilog/fat_rom.vh
+ rtl/verilog/sdhc/rtl/verilog/sd_const.vh
+ rtl/verilog/sdhc/rtl/verilog/sd_params.vh
+ rtl/verilog/sdhc/rtl/verilog/nandc_def.vh
+ rtl/verilog/sdhc/rtl/verilog/nandc_const.vh
+ rtl/verilog/sdhc/rtl/verilog/ftl_const.vh
+ rtl/verilog/include/timescale.v
+ rtl/verilog/include/uart_defines.v
+ rtl/verilog/include/or1200_defines.v
+ rtl/verilog/include/orpsoc-defines.v
+
+tb_private_src_files =
+ rtl/verilog/crypto_aes/bench/verilog/aes_sbox_tb.v
+ rtl/verilog/crypto_aes/bench/verilog/aes_ks_tb.v
+ rtl/verilog/crypto_aes/bench/verilog/aes_core_tb.v
+ rtl/verilog/crypto_sha256/bench/verilog/sha256_core_tb.v
+ rtl/verilog/crypto_sha256/bench/verilog/sha256_W_tb.v
+
+[icarus]
+iverilog_options = -DICARUS_SIM -DSIM
+
+

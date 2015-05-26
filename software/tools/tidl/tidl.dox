@@ -1,0 +1,131 @@
+/**
+
+@page tidl Tiny Interface Description Language (TIDL)
+
+@section Introduction
+
+_Tiny Interface Description Language_ (TIDL) is a specification language for describing data
+structures and enumerations. TIDL is used primarily as the input language for `tidlgen`, a utility
+which emits C and Java definitions of data structures together with serialization and
+deserialization routines. These definitions and routines can be used by distributed application
+developers to marshal data between components written in different languages.
+
+@section Grammar
+
+The TIDL grammar is reminiscent of a C header file. TIDL's primitive types are:
+
+* Signed integers: `int8`, `int16`, `int32`, and `int64`;
+* Unsigned integers: `uint8`, `uint16`, `uint32`, and `uint64`;
+* ASCII strings;
+* Arrays of any valid TIDL type (strings, integers, and user-defined enumerations and structures).
+
+TIDL definitions are case-sensitive, whitespace-insensitive, and support block @code /* ... */
+@endcode and end-of-line  @code // @endcode comments.
+
+The grammar of valid definitions is:
+
+    identifier := [_a-zA-Z][_a-zA-Z0-9]*
+
+    integer := [1-9][0-9]* | '-'[1-9][0-9]* | '0x'[a-f0-9]
+
+    tidlFile := [topLevel]
+
+    topLevel := struct | enum
+
+    struct := 'struct' identifier '{' [field] '}'
+
+    field := type identifier ';'
+
+    type := primType | 'array' primType
+
+    primType := int8  | int16  | int32  | int64
+              | uint8 | uint16 | uint32 | uint64
+              | string | 'enum' identifier | 'struct' identifier
+
+    enum := 'enum' identifier '{' [label] '}'
+
+    label := identifier '=' integer ','
+
+Note that in an enumeration, each label _must_ be assigned a value; unlike C and Java, TIDL will not
+choose an integer value for you.
+
+@section Example
+
+Here is an example which shows the valid usage of each of the grammatical features described above:
+
+    enum TotalState {
+      TS_UNINIT = 0,
+      TS_OPEN = 1,
+      TS_CLOSED = 2,
+      TS_WAITING = 3,
+    }
+
+    struct Total {
+      int8  x8;  uint8  xu8;
+      int16 x16; uint16 xu16;
+      int32 x32; uint32 xu32;
+      int64 x64; uint64 xu64;
+      string tag;
+      enum TotalState state;
+    }
+
+    enum CarrierState {
+      CS_OK = 0x5abb11aa,
+      CS_FAIL = -2,
+    }
+
+    struct Carrier {
+      array struct Total universe;
+      array enum CarrierState states;
+      array string names;
+      array struct Carrier sub_carriers;
+    }
+
+@section Usage
+
+The `tidlgen` utility documents its usage:
+
+    $ ./tidlgen -h
+    Help Options:
+      -h, --help
+        Show option summary.
+      --help-all
+        Show all help options.
+
+    Application Options:
+      --java :: maybe<text>
+        Emit Java
+      --C :: maybe<text>
+        Emit C
+      --outdir :: text
+        Target emission directory
+        default: "tidlout"
+      --infile :: maybe<text>
+        Input file (stdin if omitted)
+
+`tidlgen` can read its input via standard-in or from a file on disk (`--infile FILENAME`). By
+default, it will put generated code in the `tidlout` directory, but output may be redirected to
+another path (`--outdir DIRECTORY`).
+
+To generate C output, pass `--C MODULE_NAME`, where `MODULE_NAME` will be used to determine the name
+of the generated .h and .c files.
+
+To generate Java output, pass `--java PACKAGE`, where `PACKAGE` is the Java package into-which all
+generated code will be placed.
+
+If given a malformed TIDL definition, `tidlgen` will politely report the parse error, giving
+line- and column-numbers for the location where the error occurred, as well as reporting what it
+_expected_ to find at that location (as per the grammar). For instance, if we omit a comma in the
+definition of an enumeration, the missing comma is correctly reported by `tidlgen` as the cause of
+the error:
+
+    $ cat | dist/build/tidlgen/tidlgen --java Foo
+    enum Baz {
+      B_FOO1 = 1,
+      B_FOO2 = 2
+    }
+    Parse error: "(unknown)" (line 4, column 1):
+    unexpected "}"
+    expecting ","
+
+*/

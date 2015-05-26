@@ -1,0 +1,31 @@
+/* tidltest.tidl
+ *
+ */
+
+enum TotalState {
+  TS_UNINIT = 0,
+  TS_OPEN = 1,
+  TS_CLOSED = 2,
+  TS_WAITING = 3,
+}
+
+struct Total {
+  int8  x8;  uint8  xu8;
+  int16 x16; uint16 xu16;
+  int32 x32; uint32 xu32;
+  int64 x64; uint64 xu64;
+  string tag;
+  enum TotalState state;
+}
+
+enum CarrierState {
+  CS_OK = 0x5abb11aa,
+  CS_FAIL = -2,
+}
+
+struct Carrier {
+  array[32] struct Total universe;
+  array[max 10] enum CarrierState states;
+  array[max 12] string names;
+  array[max 15] struct Carrier sub_carriers;
+}

@@ -1,0 +1,34 @@
+/* chatproto.tidl
+ *
+ * tidlgen --C chatProto --infile chatproto.tidl
+ * tidlgen --java orp.urchat --infile chatproto.tidl
+ */
+
+
+enum ChatCommand {
+  CC_LOGOUT               = 0x10,
+  CC_SETSEEK              = 0x20,
+  CC_GETSEEK              = 0x30,
+  CC_GET_CHANNEL          = 0x40,
+  CC_CLOSE_CHANNEL        = 0x50,
+  CC_GET_EXCHANGE         = 0x60,
+  CC_ENCRYPT              = 0x70,
+  CC_INCOMING             = 0x80,
+}
+
+enum ChatResponse {
+  CR_ERROR              = 0xff,
+  CR_PUBKEY             = 0x00,
+  CR_GOODBYE            = 0x11,
+  CR_SEEKUPDATED        = 0x21,
+  CR_SEEK               = 0x31,
+  CR_CHANNEL            = 0x41,
+  CR_CHANNEL_CLOSED     = 0x51,
+  CR_EXCHANGE           = 0x61,
+  CR_CIPHERTEXT         = 0x71,
+
+  CR_FOUND              = 0x81,
+  CR_EXCHANGED          = 0x82,
+  CR_PLAINTEXT          = 0x83,
+  CR_NEVERMIND          = 0x84,
+}

@@ -1,0 +1,25 @@
+/** @page demo ORP Demo Applications
+
+A number of demo applications are included with the msel ORP.  Each of these applications is briefly
+described here:
+
+- *Echo server*: This application is a simple echo server for mselOS.  Namely, data written to WFILE
+  is immediately copied to RFILE.  This demo is intended as a simple skeleton from which more
+complicated applications can be built.
+- *AES Stream Encryptor*: This application uses the hardware AES core, along with the AES-GCM stream
+  cipher to encrypt or decrypt a stream of data.  This demo shows how to write a simple application
+  for ORP using one of the cryptographic cores.
+- *AES XTS Filesystem Encryptor*: This application uses the hardware AES core to encrypt a
+  collection of blocks of data (for example, a filesystem, where each block corresponds to a sector
+  of the filesystem.  This is another simple application example for ORP.
+- *UrChat*: This application demonstrates an encrypted secure chat session between two phones, where
+  all encryption and key exchange computations occur on the secure peripheral device.  This is a
+  full-fledged application for the ORP device that uses all of the cryptographic cores and other
+  provided services.
+- *Android Key Store*: This application demonstrates how ORP can be used via the Java Cryptographic
+  Services API, which provides a single class/interface hierarchy for a number of common
+  cryptographic tasks. By using the ORP providers in the Key Store demo, you get the convenience and
+  familiarity that comes with the Java services, but also get the secure key storage of the msel 
+  ORP.
+
+*/

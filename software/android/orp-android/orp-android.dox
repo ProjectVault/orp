@@ -1,0 +1,24 @@
+/** 
+
+@page orpandroid The ORP Java library
+
+The ORP Java library is a collection of utilities that are designed for Android developers 
+to interface with the msel ORP peripheral device.  These tools include a session manager for
+communication over the faux filesystem interface, as well as cryptographic libraries to interact with
+the cryptographic primitives provided by mselSoC.
+
+The ORP Java library uses the Java Native Interface (JNI) to enable direct access to the
+faux filesystem interface.  Users of the library have the option to either access the filesystem
+interface using `O_DIRECT` or by writing to the `drop_caches` file (see @ref hw_ffs).  The former
+does not work on all versions of Android; however, the latter method requires root permission on the
+Android device.
+
+The ORP session manager implements a multi-threaded message pump for both RFILE and WFILE,
+which enables users to easily and quickly read and write to the peripheral device.  The session
+manager can be configured to either perform reads and writes over TCP/IP (for use with the @ref
+qemu), or via a mounted FAT filesystem (for use with the actual peripheral device).
+
+A number of Android applications are also provided that implement the host side of the msel ORP demo
+applications (see @ref demo).
+
+*/ 

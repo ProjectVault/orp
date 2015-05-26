@@ -1,0 +1,6 @@
+src/build
+src/fusesoc.log
+src/_impactbatch.log
+src/geophyte.cfi
+src/geophyte.mcs
+src/geophyte.prm

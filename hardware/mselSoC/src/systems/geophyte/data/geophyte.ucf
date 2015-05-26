@@ -1,0 +1,51 @@
+# Geophyte UCF file
+NET "sys_clk_pad_i"   LOC = "N11" | IOSTANDARD = "LVCMOS33";
+NET "gpio0_io<0>"     LOC = "T4"  | IOSTANDARD = "LVCMOS33";
+NET "gpio0_io<1>"     LOC = "T3"  | IOSTANDARD = "LVCMOS33";
+NET "gpio0_io<2>"     LOC = "R3"  | IOSTANDARD = "LVCMOS33";
+NET "gpio0_io<3>"     LOC = "T2"  | IOSTANDARD = "LVCMOS33";
+NET "gpio0_io<4>"     LOC = "L5"  | IOSTANDARD = "LVCMOS33";
+NET "gpio0_io<5>"     LOC = "M4"  | IOSTANDARD = "LVCMOS33";
+NET "gpio0_io<6>"     LOC = "R1"  | IOSTANDARD = "LVCMOS33";
+NET "rst_n_pad_i"     LOC = "R2"  | IOSTANDARD = "LVCMOS33";
+NET "sd_clk"          LOC = "J3"  | IOSTANDARD = "LVCMOS33";
+NET "sd_cmd"          LOC = "H5"  | IOSTANDARD = "LVCMOS33";
+NET "sd_dat<0>"       LOC = "J4"  | IOSTANDARD = "LVCMOS33";
+NET "sd_dat<1>"       LOC = "J1"  | IOSTANDARD = "LVCMOS33";
+NET "sd_dat<2>"       LOC = "H3"  | IOSTANDARD = "LVCMOS33";
+NET "sd_dat<3>"       LOC = "H1"  | IOSTANDARD = "LVCMOS33";
+NET "uart0_srx_pad_i" LOC = "B1"  | IOSTANDARD = "LVCMOS33";
+NET "uart0_stx_pad_o" LOC = "A2"  | IOSTANDARD = "LVCMOS33";
+NET "nand_ale"        LOC = "K2"  | IOSTANDARD = "LVCMOS33";
+NET "nand_ce_n"       LOC = "L3"  | IOSTANDARD = "LVCMOS33";
+NET "nand_cle"        LOC = "L2"  | IOSTANDARD = "LVCMOS33";
+NET "nand_io<0>"      LOC = "G1"  | IOSTANDARD = "LVCMOS33";
+NET "nand_io<1>"      LOC = "G2"  | IOSTANDARD = "LVCMOS33";
+NET "nand_io<2>"      LOC = "G4"  | IOSTANDARD = "LVCMOS33";
+NET "nand_io<3>"      LOC = "F2"  | IOSTANDARD = "LVCMOS33";
+NET "nand_io<4>"      LOC = "F3"  | IOSTANDARD = "LVCMOS33";
+NET "nand_io<5>"      LOC = "E1"  | IOSTANDARD = "LVCMOS33";
+NET "nand_io<6>"      LOC = "E2"  | IOSTANDARD = "LVCMOS33";
+NET "nand_io<7>"      LOC = "E3"  | IOSTANDARD = "LVCMOS33";
+NET "nand_rb_n"       LOC = "K5"  | IOSTANDARD = "LVCMOS33" | PULLUP;
+NET "nand_re_n"       LOC = "J5"  | IOSTANDARD = "LVCMOS33";
+NET "nand_we_n"       LOC = "K1"  | IOSTANDARD = "LVCMOS33";
+NET "nand_wp_n"       LOC = "K3"  | IOSTANDARD = "LVCMOS33";
+
+NET "sys_clk_pad_i" TNM_NET = sys_clk_pin;
+TIMESPEC TS_sys_clk_pin = PERIOD sys_clk_pin 100 MHz HIGH 50%; 
+
+NET "sd_clk" TNM_NET = sd_clk_pin;
+TIMESPEC TS_sd_clk_pin = PERIOD sd_clk_pin 100 MHz HIGH 50%; 
+NET "sd_clk" CLOCK_DEDICATED_ROUTE = FALSE;
+
+NET rst_n_pad_i TIG;
+
+NET "wb_clk" TNM_NET = wb_clk_wire;
+TIMESPEC TS_wb_clk = PERIOD wb_clk_wire 50 MHz HIGH 50%; 
+NET "wb_clk2x" TNM_NET = wb_clk2x_wire;
+TIMESPEC TS_wb_clk2x = PERIOD wb_clk2x_wire 100 MHz HIGH 50%; 
+
+TIMESPEC TS_wbsd = FROM wb_clk2x_wire TO sd_clk_pin TIG;
+TIMESPEC TS_sdwb = FROM sd_clk_pin TO wb_clk2x_wire TIG;
+

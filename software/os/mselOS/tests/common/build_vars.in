@@ -1,0 +1,21 @@
+unset QEMU_BINNAME
+unset QEMU_ARCH_FLAGS
+unset GDB_BINNAME
+
+case @OS_ARCH@ in
+	*arm*)
+		ARCH_QEMU_BIN=qemu-system-arm
+		ARCH_QEMU_FLAGS="-M lm3s6965evb" # specify machine type to get an M3 CPU
+		ARCH_GDB_BIN=arm-none-eabi-gdb
+	;;
+	*openrisc*)
+		ARCH_QEMU_BIN=qemu-system-or32
+		ARCH_GDB_BIN=or1k-elf-gdb
+	;;
+	*)
+		echo "Unknown architecture. Unit tests will not function"
+		exit -1
+	;;
+esac
+
+export QEMU_BINNAME GDB_BINNAME

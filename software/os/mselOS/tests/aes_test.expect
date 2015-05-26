@@ -1,0 +1,131 @@
+# If it prints "CHECK" 5 times I'm pretty confident the yield call is working properly
+
+set timeout 10
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "3ad77bb40d7a3660a89ecaf32466ef97"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "6bc1bee22e409f96e93d7e117393172a"
+}
+
+expect {
+           "ERROR" { puts "AES error"; exit -1 }
+           continue
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "f5d3d58503b9699de785895a96fdbaaf"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "ae2d8a571e03ac9c9eb76fac45af8e51"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "30c81c46a35ce411e5fbc1191a0a52ef"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "7b0c785e27e8ad3f8223207104725dd4"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "f69f2445df4f9b17ad2b417be66c3710"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "bd334f1d6e45f25ff712a214571fa5cc"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "6bc1bee22e409f96e93d7e117393172a"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "974104846d0ad3ad7734ecb3ecee4eef"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "ae2d8a571e03ac9c9eb76fac45af8e51"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "ef7afd2270e2e60adce0ba2face6444e"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "30c81c46a35ce411e5fbc1191a0a52ef"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "9a4b41ba738d6c72fb16691603c18e0e"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "f69f2445df4f9b17ad2b417be66c3710"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "f3eed1bdb5d2a03c064b5a7e3db181f8"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "6bc1bee22e409f96e93d7e117393172a"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "591ccb10d410ed26dc5ba74a31362870"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "ae2d8a571e03ac9c9eb76fac45af8e51"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "b6ed21b99ca6f4f9f153e7b1beafed1d"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "30c81c46a35ce411e5fbc1191a0a52ef"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "23304b7a39f9f3ff067d8d8f9e24ecc7"
+}
+
+expect {
+	       timeout { puts "timed out"; exit -1 }
+           "f69f2445df4f9b17ad2b417be66c3710"
+}
+
+
+
+
+
+
+
+

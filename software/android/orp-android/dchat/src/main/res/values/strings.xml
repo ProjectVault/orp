@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">DChat</string>
+    <string name="title_activity_chat">Chat</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_contacts">Contacts</string>
+    <string name="title_activity_conversation">Conversation</string>
+    <string name="title_activity_login">Login</string>
+</resources>

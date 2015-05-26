@@ -1,0 +1,142 @@
+﻿/**
+@page mselOS The msel operating system
+
+@section introduction Introduction
+
+This document describes mselOS, the real-time operating system designed for use with the msel ORP
+hardware platform.  It provides the platform on which applications will run on the peripheral
+device; thus, it supports initialization, destruction, and simple task-switching capabilities for
+applications running on the peripheral.  The operating system has as its core design security: thus,
+all components are isolated from each other, and no direct communication between applications is
+possible.  Furthermore, any communication between the applications and the host Android device must
+occur over the faux filesystem interface, and is mitigated by the built-in session manager for
+mselOS.
+
+@section Provisioning
+
+At provisioning time, the ORP device is loaded with a device master key and a pre-specified set of
+applications.  Each application has an associated application key, as well.  Once the device has
+been provisioned, the keys and applications cannot be changed; moreover, these keys are private to
+the device, and are never leaked to the Android device.  Thus, the keys can be used for secure
+encryption and computation without the android device ever learning them.
+
+@section tasks Tasks and Session Manager
+
+Applications in mselOS must be started explicitly by the session manager.  Multiple applications can
+run simultaneously, up to a limit of @ref MSEL_TASKS_MAX, and task switching occurs via a simple
+round-robin mechanism to ensure that no one application can use all of the available computing
+resources.  Applications are completely isolated from each other; they each have TASK_STACK_SIZE
+bytes of stack space, and TASK_HEAP_SIZE bytes of dynamically-allocatable allocatable heap space
+(specific size values are given in the `link.ld` file for the architecture under consideration)
+An application may not access the memory of a different application under any circumstances.
+
+A global session manager interposes itself between any communication from the host Android device
+and any application.  The session manager also is responsible for starting and stopping
+applications.  Thus, no application may be started on the device without the session manager's
+permission.  When an application is started by the session manager, it is assigned a session ID,
+which must be used in all future communication with that application.  If the host requests to
+communicate with an invalid session ID, the session manager will ignore the request.  The session
+manager always has session ID 0.
+
+Messages to and from the session manager must occur over the faux filesystem bus, using a predefined
+communication protocol (see @ref ffs).  Once the session manager has determined which application
+should receive an incoming message, it is placed in a per-application message queue (implemented as
+a circular buffer with size @ref MAX_QUEUE_SIZE).  If the buffer for the requested application is
+full, the session manager will respond with @ref FFS_CHANNEL_LAST_RETRY, signifying that the host
+device should try to send the message again later.
+
+Messages from the peripheral to the Android host are placed in a single message queue that is shared
+across all applications.  No guarantees are made on the relative ordering of messages from different
+applications; however, of course, the order of all messages from a single application are preserved.
+The Android application _must_ acknowledge receipt of any message before the session manager will
+send the next message in the queue.  The outgoing message queue also has size @ref MAX_QUEUE_SIZE.
+
+The one exception to outgoing messages are messages from session 0, i.e., the session manager.  To
+improve robustness, these messages are stored in a separate message queue, and messages from session
+0 pre-empt messages from any other application.
+
+Applications can check to see if they have any incoming messages using the @ref
+MSEL_SVC_FFS_SESSION_RECV syscall, and they can send messages to the host device using the @ref
+MSEL_SVC_FFS_SESSION_SEND syscall.
+
+@section ffs Faux Filesystem Protocol
+
+Messages are sent and received by the session manager in _packets_.  Each packet is 2048 bytes long
+(which is also the size of the fake files RFILE and WFILE in the presented faux filesystem).
+Incoming and outgoing messages from mselOS must conform to the following specification:
+
+<table>
+<tr><td>`2-byte session ID`</td><td>`1-byte nonce`</td><td>`1 reserved byte`</td>
+    <td>`2044 bytes of data`</td></tr>
+</table>
+
+The session ID, as discussed in @ref tasks, must correspond to a valid session (either session 0, or
+a previously-started application).  The nonce value is a monotonically-increasing value that is used
+to ensure that messages are not dropped in transmission.  Finally, the data contains the message
+transmitted to the application.
+
+Communication with the session manager is accomplished in the following manner.  To start an
+application, the following message must be transmitted to session 0:
+
+<table>
+<tr><td>`1-byte start command`</td><td>`32-byte session endpoint`</td>
+    <td>`2-byte port number`</td></tr>
+</table>
+
+The command byte must be @ref CMD_START_SESSION, which instructs the session manager to try to start
+a new application.  The 32-byte session endpoint is a unique identifier which is associated with an
+application that has been pre-loaded on the device at provisioning time, and allows the Android
+device to tell the session manager which application it would like to start.  Finally, the port can
+be thought of like a socket ID, and is used for maintaining different channels of communication with
+an application.
+
+If the session manager is successfully able to start the application, a response packet is
+transmitted to the Android device; this response packet contains a single 2-byte message,
+corresponding to the session ID of the started session.
+
+After the session manager receives each incoming message, the WFILE status register is set (see @ref
+hw_ffs).  If the message was successfully received and routed, the status will be @ref
+FFS_CHANNEL_LAST_SUCC; otherwise, an error will be reported.  It is the responsibility of the
+Android device to check the status on all writes to ensure that messages are being properly
+received.
+
+Moreover, after the session manager sends an outgoing message, it polls the RFILE status register.
+No new outgoing messages will be sent until the Android device sets this register to @ref
+FFS_CHANNEL_LAST_SUCC.  Otherwise, the previously-transmitted message will continue to be
+re-broadcast.  It is the responsibility of the Android device to acknowledge receipt of all
+messages from the peripheral.
+
+@section memory Memory Layout
+
+The ORP device has a 64k ROM starting at address `0x00100000` and 128k RAM starting at address
+`0x00200000`.  The ROM is executable and readable by all applications, and includes (in this order)
+any exception vectors, as required by the underlying architecture, the underlying executable code
+(`.text`), and initial values of static variables.
+
+The RAM is read/write for the operating system and the session manager, and read-only for
+applications.  Application writes are only permitted for that application's stack and heap.  The
+task memory is organized in increasing address order from task 0 (i.e., the OS and session manager)
+up to task N, the maximum number of tasks the device can support.  Task 0's memory is positioned
+first so that overflows run into invalid memory and generate a fault, even though task 0 has full
+permissions to all RAM addresses.  All task memory is exposed to the operating system and software
+via the @ref taskmem.c interface.
+
+After the application memory, static variables (`.data`) are allocated, and their initial values are
+copied from ROM during operating system boot-up.  Next, storage for uninitialized static data
+(`.bss`) appears, which is zeroed during operating system boot.  Finally, the RAM includes space
+for the exception and interrupt stack.
+
+The last important region of memory are the I/O regions, which control access to the various
+hardware devices on the mselSoC.  The memory-mapped I/O regions all appear after the RAM, and can
+only be read or written to in kernel mode.
+
+@section syscalls_drivers System calls and Drivers
+
+The msel cryptographic cores, the hardware random number generator, the faux filesystem
+interface, the provisioning controls, and the monotonic counter are all made available in user mode
+via @ref syscalls.  Moreover, each of the cryptographic cores and the hardware random number
+generator provide drivers that are available in user mode to ensure correct operation (see @ref
+driver).
+
+
+*/
