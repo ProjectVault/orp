@@ -1,0 +1,36 @@
+diff --git a/target-openrisc/interrupt.c b/target-openrisc/interrupt.c
+index e480cfd..0bb7e78 100644
+--- a/target-openrisc/interrupt.c
++++ b/target-openrisc/interrupt.c
+@@ -55,7 +55,12 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
+     env->tlb->cpu_openrisc_map_address_code = &cpu_openrisc_get_phys_nommu;
+ 
+     if (cs->exception_index > 0 && cs->exception_index < EXCP_NR) {
++#ifdef OR32_ARCH_DEFAULT
+         env->pc = (cs->exception_index << 8);
++#else
++        env->pc = 0x100000 + (cs->exception_index << 8);
++#endif
++        //printf("pc = 0x%x\n", env->pc);
+     } else {
+         cpu_abort(cs, "Unhandled exception 0x%x\n", cs->exception_index);
+     }
+@@ -76,6 +81,18 @@ bool openrisc_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
+     if ((interrupt_request & CPU_INTERRUPT_TIMER) && (env->sr & SR_TEE)) {
+         idx = EXCP_TICK;
+     }
++
++    // Set up custom interrupts -- make sure to disable the interrupt here,
++    // or it will get thrown multiple times
++    if ((interrupt_request & CPU_INTERRUPT_FFS_WRITE) && (env->sr & SR_IEE)) {
++        idx = EXCP_FFS_WRITE;
++        cs->interrupt_request &= ~(CPU_INTERRUPT_FFS_WRITE);
++    }
++
++    if ((interrupt_request & CPU_INTERRUPT_FFS_ACK) && (env->sr & SR_IEE)) {
++        idx = EXCP_FFS_ACK;
++        cs->interrupt_request &= ~(CPU_INTERRUPT_FFS_ACK);
++    }
+     if (idx >= 0) {
+         cs->exception_index = idx;
+         openrisc_cpu_do_interrupt(cs);

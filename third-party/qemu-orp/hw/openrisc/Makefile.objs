@@ -1,0 +1,2 @@
+obj-y = pic_cpu.o cputimer.o
+obj-y += openrisc_sim.o mmio.o aes_mmio.o aes.o sha_mmio.o sha2.o ffs_mmio.o ffs_sockets.o ecc.o ecc_mmio.o

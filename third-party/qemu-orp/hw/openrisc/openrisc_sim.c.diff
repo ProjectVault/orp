@@ -1,0 +1,56 @@
+diff --git a/hw/openrisc/openrisc_sim.c b/hw/openrisc/openrisc_sim.c
+index c110033..9c4e5f5 100644
+--- a/hw/openrisc/openrisc_sim.c
++++ b/hw/openrisc/openrisc_sim.c
+@@ -28,8 +28,34 @@
+ #include "sysemu/sysemu.h"
+ #include "hw/sysbus.h"
+ #include "sysemu/qtest.h"
++#include "hw/openrisc/mmio.h"
++#include "qemu/config-file.h"
+ 
++#ifdef OR32_ARCH_DEFAULT
+ #define KERNEL_LOAD_ADDR 0x100
++#else
++#define KERNEL_LOAD_ADDR 0x100100
++#endif
++
++static QemuOptsList openrisc_ffs_opts = {
++    .name = "ffs",
++    .head = QTAILQ_HEAD_INITIALIZER(openrisc_ffs_opts.head),
++    .desc = {
++    {
++        .name = "rfile",
++        .type = QEMU_OPT_STRING,
++        .help = "rfile port number",
++    },{
++        .name = "wfile",
++        .type = QEMU_OPT_STRING,
++        .help = "wfile port number",
++    },{
++        .name = "host_ip",
++        .type = QEMU_OPT_STRING,
++        .help = "host IP address to listen on",
++    },{ /* end of list */ }
++    }
++};
+ 
+ static void main_cpu_reset(void *opaque)
+ {
+@@ -128,6 +154,8 @@ static void openrisc_sim_init(MachineState *machine)
+         openrisc_sim_net_init(get_system_memory(), 0x92000000,
+                               0x92000400, cpu->env.irq[4], nd_table);
+     }
++    
++    openrisc_orp_sim_init_mmio(cpu, get_system_memory());
+ 
+     cpu_openrisc_load_kernel(ram_size, kernel_filename, cpu);
+ }
+@@ -142,6 +170,7 @@ static QEMUMachine openrisc_sim_machine = {
+ 
+ static void openrisc_sim_machine_init(void)
+ {
++    qemu_add_opts(&openrisc_ffs_opts);
+     qemu_register_machine(&openrisc_sim_machine);
+ }
+ 

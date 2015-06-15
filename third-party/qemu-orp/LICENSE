@@ -1,0 +1,32 @@
+The following points clarify the QEMU license for the mselSoC ORP
+
+1) QEMU as a whole is released under the GNU General Public License,
+version 2.
+
+2) Parts of QEMU have specific licenses which are compatible with the
+GNU General Public License, version 2. Hence each source file contains
+its own licensing information.  Source files with no licensing information
+are released under the GNU General Public License, version 2 or (at your
+option) any later version.
+
+As of July 2013, contributions under version 2 of the GNU General Public
+License (and no later version) are only accepted for the following files
+or directories: bsd-user/, linux-user/, hw/misc/vfio.c, hw/xen/xen_pt*.
+
+3) The Tiny Code Generator (TCG) is released under the BSD license
+   (see license headers in files).
+
+4) QEMU is a trademark of Fabrice Bellard.
+
+5) The additional components of QEMU that emulate the mselSoC ORP have
+are licensed under the Apache License, Version 2.0.  These files are 
+contained in hw/openrisc, include/hw/openrisc, and target-openrisc.
+New files to QEMU contain the Apache licensing information; files
+that have been modified to support the mselSoC have an accompanying
+diff file that show the added changes which support the mselSoC ORP.
+
+6) All changes that support the mselSoC ORP are Copyright 2015, 
+Google, Inc.
+
+Fabrice Bellard and the QEMU team
+

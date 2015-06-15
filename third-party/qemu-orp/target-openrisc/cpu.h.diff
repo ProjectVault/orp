@@ -1,0 +1,34 @@
+diff --git a/target-openrisc/cpu.h b/target-openrisc/cpu.h
+index 69b96c6..64c793b 100644
+--- a/target-openrisc/cpu.h
++++ b/target-openrisc/cpu.h
+@@ -20,6 +20,9 @@
+ #ifndef CPU_OPENRISC_H
+ #define CPU_OPENRISC_H
+ 
++//#define OR32_ARCH_DEFAULT
++
++#define TARGET_HAS_ICE 1
+ #define TARGET_LONG_BITS 32
+ #define ELF_MACHINE    EM_OPENRISC
+ 
+@@ -170,6 +173,8 @@ enum {
+     EXCP_SYSCALL  = 0xc,
+     EXCP_FPE      = 0xd,
+     EXCP_TRAP     = 0xe,
++    EXCP_FFS_WRITE = 0x10,
++    EXCP_FFS_ACK  = 0x11,
+     EXCP_NR,
+ };
+ 
+@@ -418,7 +423,9 @@ static inline int cpu_mmu_index(CPUOpenRISCState *env)
+     return (env->sr & SR_SM) == 0 ? MMU_USER_IDX : MMU_SUPERVISOR_IDX;
+ }
+ 
+-#define CPU_INTERRUPT_TIMER   CPU_INTERRUPT_TGT_INT_0
++#define CPU_INTERRUPT_TIMER      CPU_INTERRUPT_TGT_INT_0
++#define CPU_INTERRUPT_FFS_WRITE  CPU_INTERRUPT_TGT_INT_1 
++#define CPU_INTERRUPT_FFS_ACK    CPU_INTERRUPT_TGT_INT_2 
+ 
+ #include "exec/exec-all.h"
+ 

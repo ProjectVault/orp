@@ -1,0 +1,18 @@
+diff --git a/target-openrisc/cpu.c b/target-openrisc/cpu.c
+index 39bedc1..d424ccb 100644
+--- a/target-openrisc/cpu.c
++++ b/target-openrisc/cpu.c
+@@ -50,8 +50,12 @@ static void openrisc_cpu_reset(CPUState *s)
+     tlb_flush(s, 1);
+     /*tb_flush(&cpu->env);    FIXME: Do we need it?  */
+ 
++#ifdef OR32_ARCH_DEFAULT
+     cpu->env.pc = 0x100;
+-    cpu->env.sr = SR_FO | SR_SM;
++#else
++    cpu->env.pc = 0x100100;
++#endif
++    cpu->env.sr = SR_FO | SR_SM;  
+     s->exception_index = -1;
+ 
+     cpu->env.upr = UPR_UP | UPR_DMP | UPR_IMP | UPR_PICP | UPR_TTP;

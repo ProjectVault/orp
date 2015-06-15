@@ -1,0 +1,47 @@
+/** @page qemu Qemu-based Emulator for mselSoC
+
+@section introduction Introduction
+
+Qemu is a popular open-source emulator which supports a number of different hardware targets,
+including ARM and OpenRISC.  The ORP emulator for mselSoC is a modification of the Qemu OpenRISC
+target that includes support for the hardware cryptographic primitives, the hardware random number
+generator, and the faux filesystem interface.  However, for debugging purposes, the faux filesystem
+interface in Qemu is presented as a pair of TCP/IP sockets instead of a filesystem.  This allows
+developers of applications for the msel ORP to debug messages that are passed between the Android
+host and the (emulated) peripheral.
+
+@section usage Usage
+
+To use the Qemu-based emulator for mselSoC, simply run the following command:
+
+    qemu-system-or32 -kernel path/to/mselOS -nographic
+
+This will launch an emulated version of mselSoC running the specified operating system.  By default, 
+the faux filesystem interface listens for connections on ports `9998` for RFILE and `9999` for WFILE
+on the local machine.  These ports can be changed with the following command-line options:
+
+    -ffs host_ip=127.0.1.1 \
+    -ffs rfile=7777 \
+    -ffs wfile=7778
+
+Note that, due to the differences in operation between TCP/IP and filesystem access, the protocols
+to interact with the faux file system differ slightly from those presented in @ref hw_ffs.  In
+particular, before any data packet is transmitted to the ORP peripheral via WFILE, a single byte
+with value `0x01` must be sent to the listening WFILE socket.  This tells the emulator that the next
+message should be passed to the peripheral.  Similarly, to check the status register for WFILE, a
+single byte with value `0x02` should be sent to the WFILE socket.  The socket will then return the
+current status message for WFILE.
+
+Similarly, to read data from RFILE, a single byte-value of `0x01` should be passed to the emulated
+RFILE socket.  This instructs the emulator to return the contents of RFILE.  Likewise, to write a
+status request to RFILE, it must be preceded by a single byte-value of `0x02`.
+
+Finally, if application developers wish to debug an emulated application inside mselOS, they can
+simply start Qemu with the `-s -S` command line options.  These options start Qemu in the "halted"
+state, so that a debugger can be attached and breakpoints can be set before the operating system
+boots.  By default, Qemu listens for a debugger to attach on `localhost:1234`.  To force Qemu to
+listen on a different port, pass it the `-gdb tdb::<portnum>` command line option in place of the
+`-s` flag.  You can now attach a debugger to the specified port number, and set breakpoints, query
+registers, and single-step through code as normal.
+
+*/
