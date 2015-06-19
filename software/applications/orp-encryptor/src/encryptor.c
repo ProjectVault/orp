@@ -109,7 +109,7 @@ cleanup:
 		EncryptorResponse_serialize(pkt->data, FFS_DATA_SIZE, &pos, ER_UNSUPPORTED);
     else EncryptorResponse_serialize(pkt->data, FFS_DATA_SIZE, &pos, ER_OK);
 
-    while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+    while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
         msel_svc(MSEL_SVC_YIELD, NULL);
 }
 
@@ -152,7 +152,7 @@ cleanup:
     if (err) EncryptorResponse_serialize(pkt->data, FFS_DATA_SIZE, &pos, ER_ERROR);
     else EncryptorResponse_serialize(pkt->data, FFS_DATA_SIZE, &pos, ER_OK);
 
-    while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+    while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
         msel_svc(MSEL_SVC_YIELD, NULL);
 }
 
@@ -182,7 +182,7 @@ void encryptor_task(void *arg, const size_t arg_sz) {
     while (1)
     {
         msel_memset(pkt, 0, sizeof(*pkt));
-        msel_svc(MSEL_SVC_SESSION_RECV, pkt);
+        msel_svc(MSEL_SVC_FFS_SESSION_RECV, pkt);
         if (pkt->session != 0)
         {
             switch (ctx->state)

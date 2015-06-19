@@ -172,7 +172,7 @@ void bulkencryption_task(void *arg, const size_t arg_sz) {
 
   while (keepRunning) {
     msel_memset(pkt, 0, sizeof(*pkt));
-    msel_svc(MSEL_SVC_SESSION_RECV, pkt);
+    msel_svc(MSEL_SVC_FFS_SESSION_RECV, pkt);
 
     if (0 != pkt->session)
       processPacket(state, pkt);
@@ -258,12 +258,12 @@ void processPacket(state_t *state, ffs_packet_t *pkt) {
     msel_memset(pkt->data, 0, FFS_DATA_SIZE);
     int err_err = BulkEncryptionResponse_serialize(pkt->data, FFS_DATA_SIZE, &err_pos, BER_ERROR);
     if (!err_err) {
-      while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+      while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
         msel_svc(MSEL_SVC_YIELD, NULL);
     }
   }
   else {
-    while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+    while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
   }
 }

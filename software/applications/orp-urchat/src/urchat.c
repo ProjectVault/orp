@@ -221,7 +221,7 @@ int chat_process_login(chat_context_t *ctx, ffs_packet_t *pkt) {
   ctx->state = CS_AWAITING_COMMANDS;
 
   /* Send the response */
-  while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+  while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
 
   cleanup:
@@ -255,7 +255,7 @@ int chat_process_logout(chat_context_t *ctx, ffs_packet_t *pkt, uint32_t *pos) {
   ctx->state = CS_AWAITING_LOGIN;
 
   /* Send the response */
-  while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+  while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
 
   cleanup:
@@ -309,7 +309,7 @@ int chat_process_setseek(chat_context_t *ctx, ffs_packet_t *pkt, uint32_t *pos) 
   msel_memset(new_seeking, 0, sizeof(new_seeking));
 
   /* Send the response */
-  while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+  while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
 
   cleanup:
@@ -391,7 +391,7 @@ int chat_process_getseek(chat_context_t *ctx, ffs_packet_t *pkt, uint32_t *pos) 
   }
 
   /* Send the response */
-  while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+  while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
 
   cleanup:
@@ -486,7 +486,7 @@ int chat_process_getchannel(chat_context_t *ctx, ffs_packet_t *pkt, uint32_t *po
   msel_memset(remote_signing_key, 0, ECC_POINT_LEN);
 
   /* Send the response */
-  while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+  while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
 
   cleanup:
@@ -530,7 +530,7 @@ int chat_process_closechannel(chat_context_t *ctx, ffs_packet_t *pkt, uint32_t *
   }
 
   /* Send the response */
-  while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+  while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
 
   cleanup:
@@ -618,7 +618,7 @@ int chat_process_getexchange(chat_context_t *ctx, ffs_packet_t *pkt, uint32_t *p
   }
 
   /* Send the response */
-  while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+  while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
 
 
@@ -700,7 +700,7 @@ int chat_process_encrypt(chat_context_t *ctx, ffs_packet_t *pkt, uint32_t *pos) 
   sha256_hash(ctx->sessions[channel].send_iv, SHA256_OUTPUT_LEN, ctx->sessions[channel].send_iv);
 
   /* Send the response */
-  while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+  while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
 
   cleanup:
@@ -917,7 +917,7 @@ int chat_process_incoming(chat_context_t *ctx, ffs_packet_t *pkt, uint32_t *pos)
     sha256_hash(ctx->sessions[channel].recv_iv, SHA256_OUTPUT_LEN, ctx->sessions[channel].recv_iv);
   }
   /* Send the response */
-  while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+  while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
       msel_svc(MSEL_SVC_YIELD, NULL);
 
   cleanup:
@@ -965,7 +965,7 @@ void chat_process_command(chat_context_t *ctx, ffs_packet_t *pkt) {
     uint32_t length = 0;
     msel_memset(pkt->data, 0, FFS_DATA_SIZE);
     if (!ChatResponse_serialize(pkt->data, FFS_DATA_SIZE, &length, CR_ERROR)) {
-      while (msel_svc(MSEL_SVC_SESSION_SEND, pkt) != MSEL_OK) 
+      while (msel_svc(MSEL_SVC_FFS_SESSION_SEND, pkt) != MSEL_OK) 
           msel_svc(MSEL_SVC_YIELD, NULL);
     }
   }
@@ -999,7 +999,7 @@ void urchat_task(void *arg, const size_t arg_sz) {
 
   while (CS_SHOULD_EXIT != ctx->state) {
     msel_memset(pkt, 0, sizeof(*pkt));
-    msel_svc(MSEL_SVC_SESSION_RECV, pkt);
+    msel_svc(MSEL_SVC_FFS_SESSION_RECV, pkt);
     if (0 != pkt->session) {
       switch (ctx->state) {
         case CS_AWAITING_LOGIN:
